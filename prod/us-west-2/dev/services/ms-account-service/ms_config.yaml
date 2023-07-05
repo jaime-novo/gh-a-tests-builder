@@ -1,0 +1,3 @@
+account-service:
+  dev:
+    image-tag: 123
