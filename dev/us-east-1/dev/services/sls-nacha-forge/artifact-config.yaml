@@ -1,6 +1,6 @@
 notifier:
-  version: 1
+  version: 2
 uploader:
   version: 1
 creator:
-  version: 1
+  version: 3
