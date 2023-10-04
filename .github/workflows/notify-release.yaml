@@ -3,8 +3,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "prod/**/ms_config.yaml"
 
 jobs:
   notify:
@@ -53,5 +51,7 @@ jobs:
       # Then execute the script that will build the messages and send the notifications
       - id: detect-updated-services
         name: Detect updated services
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         shell: bash
         run: ./_ci/scripts/gen_update_service_file.sh ${CI_COMMIT_BEFORE_SHA} ${CI_COMMIT_SHA}
