@@ -46,14 +46,16 @@ jobs:
         env:
           VERSION: v4.34.1
           BINARY: yq_linux_amd64
+          CURR_PATH: ${{ github.workspace }}
         run: |
           wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
-          tar xz && mv ${BINARY} /usr/bin/yq
+          tar xz && mv ${BINARY} ${CURR_PATH}/yq
 
       # Then execute the script that will build the messages and send the notifications
       - id: detect-updated-services
         name: Detect updated services
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          YQ_PATH: ${{ github.workspace }}
         shell: bash
         run: ./_ci/scripts/gen_update_service_file.sh ${CI_COMMIT_BEFORE_SHA} ${CI_COMMIT_SHA}
