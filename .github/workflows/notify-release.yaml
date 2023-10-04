@@ -33,6 +33,8 @@ jobs:
         env:
           GITHUB_OAUTH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
+          curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/v0.0.38/bootstrap-gruntwork-installer.sh \
+          | bash /dev/stdin --version v0.0.38
           gruntwork-install --repo "https://github.com/gruntwork-io/terraform-aws-ci" \
           --module-name "terraform-helpers" \
           --tag "v0.51.1"
