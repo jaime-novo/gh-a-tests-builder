@@ -46,7 +46,7 @@ function generate_notification_file {
       \"old_version\": \"$old_version\",
       \"new_version\": \"$new_version\"
     }"
-    
+
     echo "$payload" > "$json_file"
   fi
 }
@@ -62,7 +62,7 @@ function generate_service_update_list {
   full_path=$(get_git_root)/$artifact_config
 
   # Retrieve core service information
-  local -r service_name="$(yq 'keys | .[]' "$full_path" | head -n1)"
+  local -r service_name="$(${YQ_PATH}/yq 'keys | .[]' "$full_path" | head -n1)"
   local -r region=$(echo "$artifact_config" | awk -F'/' '{print $2}')
 
   # Although not as generic, the insterest lies in prod deployment, hence the hardcoded value
