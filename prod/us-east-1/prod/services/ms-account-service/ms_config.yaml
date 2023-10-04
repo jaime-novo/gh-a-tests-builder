@@ -1,3 +1,3 @@
 account-service:
   prod:
-    image-tag: 126
+    image-tag: 1
