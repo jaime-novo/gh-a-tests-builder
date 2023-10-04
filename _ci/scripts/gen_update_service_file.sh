@@ -47,6 +47,7 @@ function generate_notification_file {
       \"new_version\": \"$new_version\"
     }"
 
+    echo "Writing $json_file"
     echo "$payload" > "$json_file"
   fi
 }
