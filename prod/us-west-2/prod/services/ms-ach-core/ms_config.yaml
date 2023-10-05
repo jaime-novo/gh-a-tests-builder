@@ -1,0 +1,3 @@
+ach-core:
+  prod:
+    image-tag: 1
