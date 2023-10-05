@@ -69,9 +69,9 @@ function generate_service_update_list {
 
   # Although not as generic, the insterest lies in prod deployment, hence the hardcoded value
   current_version="$(${YQ_PATH}/yq ".$service_name.prod.image-tag" "$full_path")"
-  previous_version=$current_version
+  previous_version="none"
 
-  if [[ -f "${PREVIOUS_COMMIT_PATH}/$artifact_config" ]]; then
+  if [[ -f "$(get_git_root)/${PREVIOUS_COMMIT_PATH}/$artifact_config" ]]; then
     previous_version="$(${YQ_PATH}/yq ".$service_name.prod.image-tag" "$(get_git_root)/${PREVIOUS_COMMIT_PATH}/$artifact_config")"
   fi
 
