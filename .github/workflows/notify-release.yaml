@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - prod/*/prod/services/*/ms_config.yaml
 
 jobs:
   notify:
