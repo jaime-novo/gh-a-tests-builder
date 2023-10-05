@@ -10,21 +10,21 @@ jobs:
     env:
       CI_COMMIT_BEFORE_SHA: ${{ github.event.before }}
       CI_COMMIT_SHA: ${{ github.event.after }}
-      PREVIOUS_COMMIT_PATH: ${{ github.event.before }}
-    
+      PREVIOUS_COMMIT_PATH: "previous"
+      YQ_PATH: /tmp
+ 
     # Use the previous commit to retrieve from it the previous ms_config.yaml files
     steps:
       - id: checkout-previous-commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           ref: ${{ env.CI_COMMIT_BEFORE_SHA }}
           path: ${{ env.PREVIOUS_COMMIT_PATH }}
 
       # And the current commit to get the new ms_config.yaml files
       - id: checkout-current-commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
-          # Fetch all history
           fetch-depth: 0
 
       # Leverage the 'terraform-helper' module to access to git helpers
@@ -49,13 +49,13 @@ jobs:
           CURR_PATH: ${{ github.workspace }}
         run: |
           wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
-          tar xz && mv ${BINARY} ${CURR_PATH}/yq
+          tar xz && mv ${BINARY} ${YQ_PATH}/yq
 
       # Then execute the script that will build the messages and send the notifications
       - id: detect-updated-services
         name: Detect updated services
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          YQ_PATH: ${{ github.workspace }}
+          COMMIT_URL: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
         shell: bash
         run: ./_ci/scripts/gen_update_service_file.sh ${CI_COMMIT_BEFORE_SHA} ${CI_COMMIT_SHA}

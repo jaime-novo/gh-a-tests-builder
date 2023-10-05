@@ -44,7 +44,8 @@ function generate_notification_file {
     payload="{
       \"service_name\": \"$service_name\",
       \"old_version\": \"$old_version\",
-      \"new_version\": \"$new_version\"
+      \"new_version\": \"$new_version\",
+      \"commit_url\": \"${COMMIT_URL}\"
     }"
 
     echo "Writing $json_file"
@@ -67,11 +68,11 @@ function generate_service_update_list {
   local -r region=$(echo "$artifact_config" | awk -F'/' '{print $2}')
 
   # Although not as generic, the insterest lies in prod deployment, hence the hardcoded value
-  current_version="$(yq ".$service_name.prod.image-tag" "$full_path")"
+  current_version="$(${YQ_PATH}/yq ".$service_name.prod.image-tag" "$full_path")"
   previous_version=$current_version
 
-  if [[ -f "$(get_git_root)/${PREVIOUS_COMMIT_PATH}/$artifact_config" ]]; then
-    previous_version="$(yq ".$service_name.prod.image-tag" "$(get_git_root)/${PREVIOUS_COMMIT_PATH}/$artifact_config")"
+  if [[ -f "${PREVIOUS_COMMIT_PATH}/$artifact_config" ]]; then
+    previous_version="$(${YQ_PATH}/yq ".$service_name.prod.image-tag" "$(get_git_root)/${PREVIOUS_COMMIT_PATH}/$artifact_config")"
   fi
 
   generate_notification_file "$service_name" "$region" "$previous_version" "$current_version"
@@ -84,6 +85,7 @@ function handle_updated_artifacts {
   local -r ref="$2"
 
   # Get the list of updated modules whose YAML files have changed
+  echo "Retrieving the list of updated services..."
   updated_files="$(
     git-updated-files --source-ref "$source_ref" --target-ref "$ref" --ext ms_config.yaml --exclude-ext artifacts-configs.yaml \
       | (grep -E '^prod/.*/prod/services/' || true)
@@ -107,7 +109,7 @@ function run {
   local -r ref="$2"
 
   export updated_services_dir
-  
+
   export -f generate_service_update_list
   export -f get_git_root
   export -f generate_notification_file
