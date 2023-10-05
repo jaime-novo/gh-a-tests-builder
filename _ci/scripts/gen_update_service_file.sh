@@ -106,6 +106,8 @@ function run {
   local -r source_ref="$1"
   local -r ref="$2"
 
+  export updated_services_dir
+  
   export -f generate_service_update_list
   export -f get_git_root
   export -f generate_notification_file
