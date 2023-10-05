@@ -27,6 +27,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - id: helper-ls
+        shell: bash
+        run: |
+          ls
+
       # Leverage the 'terraform-helper' module to access to git helpers
       - id: install-helper
         shell: bash
