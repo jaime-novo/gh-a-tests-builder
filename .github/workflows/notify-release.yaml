@@ -15,7 +15,7 @@ jobs:
  
     # Use the previous commit to retrieve from it the previous ms_config.yaml files
     steps:
-      # And the current commit to get the new ms_config.yaml files
+      # The current commit must be checkout first so it does not override the previous commit
       - id: checkout-current-commit
         uses: actions/checkout@v3
         with:
@@ -26,13 +26,6 @@ jobs:
         with:
           ref: ${{ env.CI_COMMIT_BEFORE_SHA }}
           path: ${{ env.PREVIOUS_COMMIT_PATH }}
-
-      - id: helper-ls
-        shell: bash
-        run: |
-          ls
-          echo "---"
-          ls ../
 
       # Leverage the 'terraform-helper' module to access to git helpers
       - id: install-helper
