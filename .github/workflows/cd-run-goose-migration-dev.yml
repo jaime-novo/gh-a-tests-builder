@@ -65,7 +65,9 @@ jobs:
         env:
           MIGRATION_DIR: ${{ inputs.migrations-dir }}
           SECRET_NAME: ${{ inputs.secret-name }}
+          GH_ACTOR: ${{ github.actor }}
         shell: bash
         run: |
           echo "Running migration files in ${MIGRATION_DIR}"
+          echo "User ${GH_ACTOR} is running the migration for branch ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> "$GITHUB_STEP_SUMMARY"
           infrastructure-deployer --aws-region "${AWS_REGION}" -- railed-goose upgrade --dir "${MIGRATION_DIR}" --repo "${REPO_URL}" --secret "${SECRET_NAME}" --ref ${REF_SHA} --ssl true
