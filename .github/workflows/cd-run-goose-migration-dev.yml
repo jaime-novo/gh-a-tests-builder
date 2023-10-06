@@ -1,0 +1,71 @@
+name: Run Goose migration
+
+on:
+  workflow_call: 
+    inputs:
+      migrations-dir:
+        description: 'Directory where the migration files are located'
+        type: string
+        required: true
+      secret-name:
+        description: 'ARN or Alias of the secret where the database hostname and credentials are stored'
+        type: string
+        required: true
+      
+      aws-region:
+        description: 'AWS region where the ECS deploy runner is running, and secret is located'
+        type: string
+        default: 'us-east-1'
+
+    secrets:
+      PERSONAL_TOKEN:
+        description: Personal access token to access private repositories
+        required: true
+      AWS_ACCESS_KEY_ID:
+        description: ID of the AWS Secret Key used to upload artifacts
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: Secret associated to the AWS Access Key ID
+        required: true
+
+jobs:
+  run-goose-migration:
+    name: Run Goose migration files
+    runs-on: ubuntu-latest
+    env:
+      GRUNTWORK_INSTALLER_VERSION: v0.0.38
+      MODULE_CI_VERSION: v0.51.1
+      MODULE_SECURITY_VERSION: v0.67.3
+      REPO_URL: "https://github.com/${{ github.repository }}"
+      REF_SHA: ${{ github.sha }}
+
+    steps:
+
+      # Dependencies install allow using Gruntwork tools to assume the needed role and invoke ECS Deploy Runner
+      - id: install-deps
+        env:
+          GITHUB_OAUTH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        name: Install dependencies
+        shell: bash
+        run: |
+          curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/v0.0.38/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${GRUNTWORK_INSTALLER_VERSION}"
+          gruntwork-install --repo "https://github.com/gruntwork-io/terraform-aws-ci" --binary-name "infrastructure-deployer" --tag "${MODULE_CI_VERSION}"
+          gruntwork-install --repo "https://github.com/gruntwork-io/terraform-aws-security" --module-name "aws-auth"  --tag "${MODULE_SECURITY_VERSION}"
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.aws-region }}
+      
+      # Since ECS Deploy Runner is leveraged, we assume the role 'allow-auto-deploy-from-other-accounts' exists and its assumed in the target account
+      - id: run-migration
+        name: Run Migration
+        env:
+          MIGRATION_DIR: ${{ inputs.migrations-dir }}
+          SECRET_NAME: ${{ inputs.secret-name }}
+        shell: bash
+        run: |
+          echo "Running migration files in ${MIGRATION_DIR}"
+          infrastructure-deployer --aws-region "${AWS_REGION}" -- railed-goose upgrade --dir "${MIGRATION_DIR}" --repo "${REPO_URL}" --secret "${SECRET_NAME}" --ref ${REF_SHA} --ssl true
