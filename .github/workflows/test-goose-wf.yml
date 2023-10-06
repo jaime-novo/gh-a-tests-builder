@@ -10,6 +10,6 @@ jobs:
       migrations-dir: "./"
       secret-name: "RDSDoesNotExists"
     secrets:
-      PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+      PERSONAL_TOKEN: ${{ secrets.GH_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.GOOSE_AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.GOOSE_AWS_SECRET_ACCESS_KEY }}
