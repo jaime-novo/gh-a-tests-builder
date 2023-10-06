@@ -69,5 +69,5 @@ jobs:
         shell: bash
         run: |
           echo "Running migration files in ${MIGRATION_DIR}"
-          echo "Migration started by ${GH_ACTOR} in branch ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} (Ref: ${GITHUB_SHA})" >> "$GITHUB_STEP_SUMMARY"
+          echo "Migration started by '${GH_ACTOR}' in branch '${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}' (Ref: ${GITHUB_SHA})" >> "$GITHUB_STEP_SUMMARY"
           infrastructure-deployer --aws-region "${AWS_REGION}" -- railed-goose upgrade --dir "${MIGRATION_DIR}" --repo "${REPO_URL}" --secret "${SECRET_NAME}" --ref ${REF_SHA} --ssl true
